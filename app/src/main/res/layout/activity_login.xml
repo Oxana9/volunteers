@@ -27,7 +27,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="волонтёры"
+        android:text="своих не бросаем"
         android:textColor="@color/er"
         android:layout_gravity="center"
         android:gravity="center"

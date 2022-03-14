@@ -20,7 +20,7 @@
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="волонтёры"
+        android:text="своих не бросаем"
         android:layout_gravity="center"
         android:textColor="@color/er"
         android:textSize="30sp"

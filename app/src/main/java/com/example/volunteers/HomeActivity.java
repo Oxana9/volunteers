@@ -17,8 +17,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +36,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -87,6 +88,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void addTask() {
+        String[] categories = { "Укажите категорию", "Общее", "Мебель и мягкий инвентарь", "Бытовая техника", "Дети", "Продукты" };
+        String[] places = { "Укажите пункт выдачи", "Зиповская, 31", "Красноармейская, 53", "Кирова 186" };
         AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = LayoutInflater.from(this);
 
@@ -95,6 +98,16 @@ public class HomeActivity extends AppCompatActivity {
 
         final AlertDialog dialog = myDialog.create();
         dialog.setCancelable(false);
+
+        Spinner spinnerCategories = myView.findViewById(R.id.spinnerCategory);
+        ArrayAdapter<String> adapterCategories = new ArrayAdapter(this, android.R.layout.simple_spinner_item, categories);
+        adapterCategories.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategories.setAdapter(adapterCategories);
+
+        Spinner spinnerPlaces = myView.findViewById(R.id.spinnerPlace);
+        ArrayAdapter<String> adapterPlaces = new ArrayAdapter(this, android.R.layout.simple_spinner_item, places);
+        adapterPlaces.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerPlaces.setAdapter(adapterPlaces);
 
         final EditText task = myView.findViewById(R.id.task);
         final EditText description = myView.findViewById(R.id.description);
