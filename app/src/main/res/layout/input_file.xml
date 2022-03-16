@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:layout_height="match_parent">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="Добавить запрос"
-        android:gravity="center"
-        android:background="@color/er"
-        android:padding="10dp"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        />
+        android:layout_height="69dp">
+
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="392dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@color/er"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Добавить запрос"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/deleteBtn"
+            android:layout_width="100dp"
+            android:layout_height="0dp"
+            android:layout_margin="0dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/header"
+            app:layout_constraintEnd_toEndOf="@+id/header"
+            app:layout_constraintTop_toTopOf="@+id/header"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/ic_baseline_delete_forever_24" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,33 +52,31 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            tools:ignore="Suspicious0dp"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            tools:ignore="Suspicious0dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Запрос"
-                android:textStyle="bold"
                 android:layout_margin="10dp"
-                />
+                android:text="Запрос"
+                android:textStyle="bold" />
 
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            tools:ignore="Suspicious0dp"
-            android:layout_weight="4">
+            android:layout_weight="4"
+            tools:ignore="Suspicious0dp">
 
             <EditText
                 android:id="@+id/task"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Текст запроса"
-                android:textStyle="bold"
                 android:layout_margin="10dp"
-                />
+                android:hint="Текст запроса"
+                android:textStyle="bold" />
 
         </RelativeLayout>
 
@@ -69,33 +91,31 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            tools:ignore="Suspicious0dp"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            tools:ignore="Suspicious0dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Описание"
-                android:textStyle="bold"
                 android:layout_margin="10dp"
-                />
+                android:text="Описание"
+                android:textStyle="bold" />
 
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            tools:ignore="Suspicious0dp"
-            android:layout_weight="4">
+            android:layout_weight="4"
+            tools:ignore="Suspicious0dp">
 
             <EditText
                 android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Текст описания"
-                android:textStyle="bold"
                 android:layout_margin="10dp"
-                />
+                android:hint="Текст описания"
+                android:textStyle="bold" />
 
         </RelativeLayout>
 
@@ -109,12 +129,18 @@
         <Spinner
             android:id="@+id/spinnerCategory"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="52dp"
+            android:layout_margin="10dp"
+            android:entries="@array/categoriesList"
+            android:textSize="18sp" />
 
         <Spinner
             android:id="@+id/spinnerPlace"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:entries="@array/placesList"
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -126,20 +152,20 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            tools:ignore="Suspicious0dp"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            tools:ignore="Suspicious0dp">
 
             <Button
+                android:id="@+id/saveBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/saveBtn"
+                android:layout_margin="10dp"
+                android:background="@color/er"
                 android:text="Готово"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:background="@color/er"
-                android:layout_margin="10dp"
-                android:textStyle="bold"
                 android:textSize="18sp"
+                android:textStyle="bold"
 
                 />
 
@@ -148,20 +174,20 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            tools:ignore="Suspicious0dp"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            tools:ignore="Suspicious0dp">
 
             <Button
+                android:id="@+id/cancelBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/cancelBtn"
+                android:layout_margin="10dp"
+                android:background="@color/er"
                 android:text="Отмена"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:background="@color/er"
-                android:layout_margin="10dp"
-                android:textStyle="bold"
                 android:textSize="18sp"
+                android:textStyle="bold"
 
                 />
 

@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Своих не бросаем</string>
+    <string-array name="categoriesList">
+        <item>Укажите категорию</item>
+        <item>Общее</item>
+        <item>Мебель и мягкий инвентарь</item>
+        <item>Бытовая техника</item>
+        <item>Дети</item>
+        <item>Продукты</item>
+    </string-array>
+    <string-array name="placesList">
+        <item>Укажите пункт выдачи</item>
+        <item>Зиповская, 31</item>
+        <item>Красноармейская, 53</item>
+        <item>Кирова 186</item>
+    </string-array>
 </resources>

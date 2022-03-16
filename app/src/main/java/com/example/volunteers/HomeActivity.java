@@ -17,9 +17,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,9 +50,12 @@ public class HomeActivity extends AppCompatActivity {
 
     private ProgressDialog loader;
 
+    private String currentUser = "";
     private String key = "";
     private String task;
     private String description;
+    private long categoryIdx;
+    private long placeIdx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +78,7 @@ public class HomeActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         onlineUserID = mAuth.getUid();
-        reference = FirebaseDatabase.getInstance().getReference().child("tasks").child(onlineUserID);
+        reference = FirebaseDatabase.getInstance().getReference().child("tasks");//.child(onlineUserID);
 
         floatingActionButton = findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -88,8 +91,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void addTask() {
-        String[] categories = { "Укажите категорию", "Общее", "Мебель и мягкий инвентарь", "Бытовая техника", "Дети", "Продукты" };
-        String[] places = { "Укажите пункт выдачи", "Зиповская, 31", "Красноармейская, 53", "Кирова 186" };
+//        String[] categories = { "Укажите категорию", "Общее", "Мебель и мягкий инвентарь", "Бытовая техника", "Дети", "Продукты" };
+//        String[] places = { "Укажите пункт выдачи", "Зиповская, 31", "Красноармейская, 53", "Кирова 186" };
         AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = LayoutInflater.from(this);
 
@@ -100,14 +103,14 @@ public class HomeActivity extends AppCompatActivity {
         dialog.setCancelable(false);
 
         Spinner spinnerCategories = myView.findViewById(R.id.spinnerCategory);
-        ArrayAdapter<String> adapterCategories = new ArrayAdapter(this, android.R.layout.simple_spinner_item, categories);
-        adapterCategories.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCategories.setAdapter(adapterCategories);
-
+//        ArrayAdapter<String> adapterCategories = new ArrayAdapter(this, android.R.layout.simple_spinner_item, categories);
+//        adapterCategories.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinnerCategories.setAdapter(adapterCategories);
+//
         Spinner spinnerPlaces = myView.findViewById(R.id.spinnerPlace);
-        ArrayAdapter<String> adapterPlaces = new ArrayAdapter(this, android.R.layout.simple_spinner_item, places);
-        adapterPlaces.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerPlaces.setAdapter(adapterPlaces);
+//        ArrayAdapter<String> adapterPlaces = new ArrayAdapter(this, android.R.layout.simple_spinner_item, places);
+//        adapterPlaces.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinnerPlaces.setAdapter(adapterPlaces);
 
         final EditText task = myView.findViewById(R.id.task);
         final EditText description = myView.findViewById(R.id.description);
@@ -123,6 +126,8 @@ public class HomeActivity extends AppCompatActivity {
             String mDescription = description.getText().toString().trim();
             String id = reference.push().getKey();
             String date = DateFormat.getDateInstance().format(new Date());
+            long categoryIdx = spinnerCategories.getSelectedItemId();
+            long placeIdx = spinnerPlaces.getSelectedItemId();
 
         if (TextUtils.isEmpty(mTask)) {
             task.setError("Введите запрос");
@@ -136,7 +141,7 @@ public class HomeActivity extends AppCompatActivity {
             loader.setCanceledOnTouchOutside(false);
             loader.show();
 
-            Model model = new Model(mTask, mDescription, id, date);
+            Model model = new Model(onlineUserID, mTask, mDescription, id, date, categoryIdx, placeIdx);
             reference.child(id).setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -171,6 +176,8 @@ public class HomeActivity extends AppCompatActivity {
                 holder.setDate(model.getDate());
                 holder.setTask(model.getTask());
                 holder.setDesc(model.getDescription());
+                holder.setCategory(model.getCategory());
+                holder.setPlace(model.getPlace());
                 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -187,6 +194,9 @@ public class HomeActivity extends AppCompatActivity {
                         key = getRef(pos).getKey();
                         task = model.getTask();
                         description = model.getDescription();
+                        categoryIdx = model.getCategory();
+                        placeIdx = model.getPlace();
+                        currentUser = model.getUserId();
 
                         updateTask();
                     }
@@ -196,7 +206,7 @@ public class HomeActivity extends AppCompatActivity {
             @NonNull
             @Override
             public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.retrieved_layout, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.input_file, parent, false);
                 return new MyViewHolder(view);
             }
         };
@@ -212,32 +222,51 @@ public class HomeActivity extends AppCompatActivity {
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             mView = itemView;
+            mView.findViewById(R.id.saveBtn).setVisibility(View.GONE);
+            mView.findViewById(R.id.cancelBtn).setVisibility(View.GONE);
+            mView.findViewById(R.id.task).setEnabled(false);
+            mView.findViewById(R.id.description).setEnabled(false);
+            mView.findViewById(R.id.spinnerCategory).setEnabled(false);
+            mView.findViewById(R.id.spinnerPlace).setEnabled(false);
         }
         public void setTask(String task) {
-            TextView taskTextView = mView.findViewById(R.id.taskTv);
+            TextView taskTextView = mView.findViewById(R.id.task);
             taskTextView.setText(task);
         }
 
         public void setDesc(String desc) {
-            TextView descTextView = mView.findViewById(R.id.descriptionTv);
+            TextView descTextView = mView.findViewById(R.id.description);
             descTextView.setText(desc);
         }
 
+        public void setCategory(long categoryIdx) {
+            Spinner category = mView.findViewById(R.id.spinnerCategory);
+            category.setSelection((int) categoryIdx);
+        }
+
+        public void setPlace(long placeIdx) {
+            Spinner place = mView.findViewById(R.id.spinnerPlace);
+            place.setSelection((int) placeIdx);
+        }
+
         public void setDate(String date) {
-            TextView dateTextView = mView.findViewById(R.id.dateTv);
+            TextView dateTextView = mView.findViewById(R.id.header);
+            dateTextView.setText(date);
         }
     }
 
     private void updateTask(){
         AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = LayoutInflater.from(this);
-        View view = inflater.inflate(R.layout.update_data, null);
+        View view = inflater.inflate(R.layout.input_file, null);
+        ((TextView)view.findViewById(R.id.header)).setText("Изменить запись");
+        view.findViewById(R.id.deleteBtn).setVisibility((currentUser==onlineUserID)?View.VISIBLE:View.GONE);
         myDialog.setView(view);
 
         AlertDialog dialog = myDialog.create();
 
-        EditText mTask = view.findViewById(R.id.mEditTextTask);
-        EditText mDescription = view.findViewById(R.id.mEdit);
+        EditText mTask = view.findViewById(R.id.task);
+        EditText mDescription = view.findViewById(R.id.description);
 
         mTask.setText(task);
         mTask.setSelection(task.length());
@@ -245,8 +274,15 @@ public class HomeActivity extends AppCompatActivity {
         mDescription.setText(description);
         mDescription.setSelection(description.length());
 
-        Button delButton = view.findViewById(R.id.btnDelete);
-        Button updateButton = view.findViewById(R.id.btnSave);
+        Spinner spinnerCategory = view.findViewById(R.id.spinnerCategory);
+        Spinner spinnerPlace = view.findViewById(R.id.spinnerPlace);
+
+        spinnerCategory.setSelection((int) categoryIdx);
+        spinnerPlace.setSelection((int) placeIdx);
+
+        ImageButton delButton = view.findViewById(R.id.deleteBtn);
+        Button updateButton = view.findViewById(R.id.saveBtn);
+        Button cancelButton = view.findViewById(R.id.cancelBtn);
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -255,8 +291,10 @@ public class HomeActivity extends AppCompatActivity {
                 description = mDescription.getText().toString().trim();
 
                 String date = DateFormat.getDateInstance().format(new Date());
+                long categoryIdx = spinnerCategory.getSelectedItemId();
+                long placeIdx = spinnerPlace.getSelectedItemId();
 
-                Model model = new Model(task,description, key, date);
+                Model model = new Model(onlineUserID, task, description, key, date, categoryIdx, placeIdx);
 
                 reference.child(key).setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -292,6 +330,10 @@ public class HomeActivity extends AppCompatActivity {
 
                 dialog.dismiss();
             }
+        });
+
+        cancelButton.setOnClickListener((v) -> {
+            dialog.dismiss();
         });
 
         dialog.show();
