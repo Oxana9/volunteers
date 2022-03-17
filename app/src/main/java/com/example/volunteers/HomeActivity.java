@@ -47,10 +47,12 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
     private String onlineUserID;
+    private String userId;
 
     private ProgressDialog loader;
 
     private String currentUser = "";
+    private String currentStatus = "";
     private String key = "";
     private String task;
     private String description;
@@ -78,6 +80,7 @@ public class HomeActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         onlineUserID = mAuth.getUid();
+        userId = mUser.getEmail();
         reference = FirebaseDatabase.getInstance().getReference().child("tasks");//.child(onlineUserID);
 
         floatingActionButton = findViewById(R.id.fab);
@@ -141,7 +144,7 @@ public class HomeActivity extends AppCompatActivity {
             loader.setCanceledOnTouchOutside(false);
             loader.show();
 
-            Model model = new Model(onlineUserID, mTask, mDescription, id, date, categoryIdx, placeIdx);
+            Model model = new Model(userId, mTask, mDescription, id, date, categoryIdx, placeIdx, "Создано");
             reference.child(id).setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -197,6 +200,7 @@ public class HomeActivity extends AppCompatActivity {
                         categoryIdx = model.getCategory();
                         placeIdx = model.getPlace();
                         currentUser = model.getUserId();
+                        currentStatus = model.getStatus();
 
                         updateTask();
                     }
@@ -260,7 +264,9 @@ public class HomeActivity extends AppCompatActivity {
         LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.input_file, null);
         ((TextView)view.findViewById(R.id.header)).setText("Изменить запись");
-        view.findViewById(R.id.deleteBtn).setVisibility((currentUser==onlineUserID)?View.VISIBLE:View.GONE);
+        view.findViewById(R.id.deleteBtn).setVisibility((currentUser==userId)?View.VISIBLE:View.GONE);
+        Button btnSave = view.findViewById(R.id.saveBtn);
+        btnSave.setText((currentUser==userId)?"Изменить":"Помочь");
         myDialog.setView(view);
 
         AlertDialog dialog = myDialog.create();
@@ -293,8 +299,14 @@ public class HomeActivity extends AppCompatActivity {
                 String date = DateFormat.getDateInstance().format(new Date());
                 long categoryIdx = spinnerCategory.getSelectedItemId();
                 long placeIdx = spinnerPlace.getSelectedItemId();
+                if (userId == currentUser && currentStatus == "Помогаю") {
+                    currentStatus = "Завершено";
+                }
+                if (userId != currentUser && currentStatus == "Создано") {
+                    currentStatus = "Помогаю";
+                }
 
-                Model model = new Model(onlineUserID, task, description, key, date, categoryIdx, placeIdx);
+                Model model = new Model(userId, task, description, key, date, categoryIdx, placeIdx, currentStatus);
 
                 reference.child(key).setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

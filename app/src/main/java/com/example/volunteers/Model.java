@@ -2,17 +2,18 @@ package com.example.volunteers;
 
 public class Model {
 
-    private String userId, task, description, id, date;
+    private String userId, task, description, id, date, status;
     private long category, place;
+    private String whoHelped;
 
     public Model() {
     }
 
-    public Model(String userId, String task, String description, String id, String date) {
-        this(userId, task,description,id,date,0,0);
-    }
+//    public Model(String userId, String task, String description, String id, String date) {
+//        this(userId, task,description,id,date,0,0);
+//    }
 
-    public Model(String userId, String task, String description, String id, String date, long category, long place) {
+    public Model(String userId, String task, String description, String id, String date, long category, long place, String status) {
         this.userId = userId;
         this.task = task;
         this.description = description;
@@ -20,6 +21,7 @@ public class Model {
         this.date = date;
         this.category = category;
         this.place = place;
+        this.status = status;
     }
 
     public String getTask() {
@@ -72,7 +74,15 @@ public class Model {
         return place;
     }
 
-    public void setPlace(int place) {
+    public void setPlace(long place) {
         this.place = place;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
