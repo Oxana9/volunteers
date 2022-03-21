@@ -23,11 +23,11 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="32dp"
             android:layout_weight="140"
-            android:background="@color/er"
+            android:background="@color/white"
             android:gravity="center"
             android:padding="10dp"
             android:text="Добавить запрос"
-            android:textColor="@color/white"
+            android:textColor="@color/er"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -37,11 +37,13 @@
             android:layout_height="70dp"
             android:layout_margin="0dp"
             android:layout_weight="10"
+            android:backgroundTint="#FD0505"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_baseline_delete_forever_24" />
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/taskLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"

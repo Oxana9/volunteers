@@ -51,13 +51,13 @@ public class HomeActivity extends AppCompatActivity {
 
     private ProgressDialog loader;
 
-    private String currentUser = "";
-    private String currentStatus = "";
-    private String key = "";
-    private String task;
-    private String description;
-    private long categoryIdx;
-    private long placeIdx;
+    private String modelUserId = "";
+    private String modelStatus = "";
+    private String modelKey = "";
+    private String modelTask;
+    private String modelDescription;
+    private long modelCategoryIdx;
+    private long modelPlaceIdx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,7 +176,7 @@ public class HomeActivity extends AppCompatActivity {
         FirebaseRecyclerAdapter<Model, MyViewHolder> adapter = new FirebaseRecyclerAdapter<Model, MyViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Model model) {
-                holder.setDate(model.getDate());
+                holder.setHeader(model.getTask());
                 holder.setTask(model.getTask());
                 holder.setDesc(model.getDescription());
                 holder.setCategory(model.getCategory());
@@ -194,13 +194,13 @@ public class HomeActivity extends AppCompatActivity {
                         if (getItemCount() == pos) {
                             pos -= 1;
                         }
-                        key = getRef(pos).getKey();
-                        task = model.getTask();
-                        description = model.getDescription();
-                        categoryIdx = model.getCategory();
-                        placeIdx = model.getPlace();
-                        currentUser = model.getUserId();
-                        currentStatus = model.getStatus();
+                        modelKey = getRef(pos).getKey();
+                        modelTask = model.getTask();
+                        modelDescription = model.getDescription();
+                        modelCategoryIdx = model.getCategory();
+                        modelPlaceIdx = model.getPlace();
+                        modelUserId = model.getUserId();
+                        modelStatus = model.getStatus();
 
                         updateTask();
                     }
@@ -228,10 +228,10 @@ public class HomeActivity extends AppCompatActivity {
             mView = itemView;
             mView.findViewById(R.id.saveBtn).setVisibility(View.GONE);
             mView.findViewById(R.id.cancelBtn).setVisibility(View.GONE);
-            mView.findViewById(R.id.task).setEnabled(false);
+            mView.findViewById(R.id.taskLayout).setVisibility(View.GONE);
             mView.findViewById(R.id.description).setEnabled(false);
-            mView.findViewById(R.id.spinnerCategory).setEnabled(false);
-            mView.findViewById(R.id.spinnerPlace).setEnabled(false);
+            mView.findViewById(R.id.spinnerCategory).setVisibility(View.GONE);
+            mView.findViewById(R.id.spinnerPlace).setVisibility(View.GONE);
         }
         public void setTask(String task) {
             TextView taskTextView = mView.findViewById(R.id.task);
@@ -253,20 +253,20 @@ public class HomeActivity extends AppCompatActivity {
             place.setSelection((int) placeIdx);
         }
 
-        public void setDate(String date) {
+        public void setHeader(String header) {
             TextView dateTextView = mView.findViewById(R.id.header);
-            dateTextView.setText(date);
+            dateTextView.setText(header);
         }
     }
 
     private void updateTask(){
+        //if (this.modelStatus.equals("Завершено")) return;
+        boolean sameUser = this.modelUserId.equals(this.userId);
+        boolean statusCreated = this.modelStatus.equals("Создано");
         AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.input_file, null);
         ((TextView)view.findViewById(R.id.header)).setText("Изменить запись");
-        view.findViewById(R.id.deleteBtn).setVisibility((currentUser==userId)?View.VISIBLE:View.GONE);
-        Button btnSave = view.findViewById(R.id.saveBtn);
-        btnSave.setText((currentUser==userId)?"Изменить":"Помочь");
         myDialog.setView(view);
 
         AlertDialog dialog = myDialog.create();
@@ -274,41 +274,73 @@ public class HomeActivity extends AppCompatActivity {
         EditText mTask = view.findViewById(R.id.task);
         EditText mDescription = view.findViewById(R.id.description);
 
-        mTask.setText(task);
-        mTask.setSelection(task.length());
-
-        mDescription.setText(description);
-        mDescription.setSelection(description.length());
+        mTask.setText(modelTask);
+        mDescription.setText(modelDescription);
 
         Spinner spinnerCategory = view.findViewById(R.id.spinnerCategory);
         Spinner spinnerPlace = view.findViewById(R.id.spinnerPlace);
 
-        spinnerCategory.setSelection((int) categoryIdx);
-        spinnerPlace.setSelection((int) placeIdx);
+        spinnerCategory.setSelection((int) modelCategoryIdx);
+        spinnerPlace.setSelection((int) modelPlaceIdx);
 
         ImageButton delButton = view.findViewById(R.id.deleteBtn);
         Button updateButton = view.findViewById(R.id.saveBtn);
         Button cancelButton = view.findViewById(R.id.cancelBtn);
 
+        if (sameUser) {
+            delButton.setVisibility(View.VISIBLE);
+            mTask.setSelection(modelTask.length());
+            mDescription.setSelection(modelDescription.length());
+            if (statusCreated) {
+                updateButton.setText("Изменить");
+            }
+            else {
+                updateButton.setText("Завершить");
+            }
+        }
+        else {
+            mTask.setEnabled(false);
+            mDescription.setEnabled(false);
+            spinnerCategory.setEnabled(false);
+            spinnerPlace.setEnabled(false);
+            if (statusCreated) {
+                updateButton.setText("Помочь");
+            }
+            else {
+                if (this.modelStatus.equals(this.userId)) {
+                    updateButton.setText("Отозвать");
+                }
+                else updateButton.setVisibility(View.GONE);
+            }
+        }
+
+
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                task = mTask.getText().toString().trim();
-                description = mDescription.getText().toString().trim();
+                boolean sameUser = modelUserId.equals(userId);
+                boolean statusCreated = modelStatus.equals("Создано");
+                modelTask = mTask.getText().toString().trim();
+                modelDescription = mDescription.getText().toString().trim();
 
                 String date = DateFormat.getDateInstance().format(new Date());
                 long categoryIdx = spinnerCategory.getSelectedItemId();
                 long placeIdx = spinnerPlace.getSelectedItemId();
-                if (userId == currentUser && currentStatus == "Помогаю") {
-                    currentStatus = "Завершено";
+                if (sameUser && !statusCreated) {
+                    modelStatus = "Завершено";
+                    removeItem(dialog);
+                    return;
                 }
-                if (userId != currentUser && currentStatus == "Создано") {
-                    currentStatus = "Помогаю";
+                if (!sameUser && modelStatus.equals(userId)) {
+                    modelStatus = "Создано";
+                } else
+                if (!sameUser && statusCreated) {
+                    modelStatus = userId;
                 }
 
-                Model model = new Model(userId, task, description, key, date, categoryIdx, placeIdx, currentStatus);
+                Model model = new Model(modelUserId, modelTask, modelDescription, modelKey, date, categoryIdx, placeIdx, modelStatus);
 
-                reference.child(key).setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
+                reference.child(modelKey).setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
@@ -328,19 +360,7 @@ public class HomeActivity extends AppCompatActivity {
         delButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                reference.child(key).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()) {
-                            Toast.makeText(HomeActivity.this, "Запрос удалено", Toast.LENGTH_SHORT).show();
-                        } else {
-                            String err = task.getException().toString();
-                            Toast.makeText(HomeActivity.this, "Ошибка при удалении запроса", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-                dialog.dismiss();
+                removeItem(dialog);
             }
         });
 
@@ -349,6 +369,22 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private void removeItem(AlertDialog dialog) {
+        reference.child(modelKey).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    Toast.makeText(HomeActivity.this, "Запрос удален", Toast.LENGTH_SHORT).show();
+                } else {
+                    String err = task.getException().toString();
+                    Toast.makeText(HomeActivity.this, "Ошибка при удалении запроса", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        dialog.dismiss();
     }
 
     @Override
